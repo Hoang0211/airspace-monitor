@@ -1,5 +1,11 @@
 import { useEffect, useRef } from "react";
-import { Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
+import {
+  FullscreenControl,
+  Map as MapLibreMap,
+  NavigationControl,
+  ScaleControl,
+  setWorkerUrl,
+} from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useAppStore } from "../state/store";
@@ -18,6 +24,11 @@ export function MapView() {
       center: [24.97, 60.3],
       zoom: 11,
     });
+
+    map.addControl(new NavigationControl());
+    // Fullscreen covers the whole page, so the side panel stays visible next to the map.
+    map.addControl(new FullscreenControl({ container: document.documentElement }));
+    map.addControl(new ScaleControl());
 
     let unsubscribe = () => {};
 
