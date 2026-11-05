@@ -2,6 +2,8 @@
 
 A browser-based operator view for drone detection. Simulated drones fly over Vantaa, Finland, while fictional sensors detect them. The live map shows drones, their pilots, sensor coverage and restricted-zone alerts.
 
+**[Open the live demo](https://hoang0211.github.io/airspace-monitor/)**
+
 > **All data is simulated.** Sensor sites and zones are fictional and approximate, not real aviation data.
 
 ## What it does
