@@ -4,10 +4,6 @@ A browser-based operator view for drone detection. Simulated drones fly over Van
 
 > **All data is simulated.** Sensor sites and zones are fictional and approximate, not real aviation data.
 
-## Status
-
-In early development. The base map is in place, and the features below are being built.
-
 ## What it does
 
 - **Live map:** follow drones and their pilots as they move, with sensor coverage and restricted zones drawn on the map.
