@@ -11,7 +11,7 @@ const PIXEL_RATIO = 2;
 const SENSOR_ICON_SIZE = 40;
 const HATCH_SIZE = 16;
 const HATCH_STRIPE_HALF_WIDTH = 2;
-const HATCH_OPACITY = 0.5;
+const HATCH_OPACITY = 0.3;
 
 interface RgbaImage {
   width: number;

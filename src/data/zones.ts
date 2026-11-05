@@ -1,10 +1,10 @@
 import type { Zone } from "./zones.types";
 
-/** Fictional, hand-drawn zones with approximate shapes. This is not real airspace data. */
+/** Hand-drawn zones with approximate shapes and fictional restrictions, not real airspace data. */
 export const ZONES: Zone[] = [
   {
     id: "zone-airport",
-    name: "Airport control zone",
+    name: "Helsinki Airport",
     kind: "airport",
     polygon: {
       type: "Polygon",
