@@ -21,6 +21,7 @@ export function LayerToggles() {
           <label key={layer} className="flex cursor-pointer items-center gap-2 text-sm">
             <input
               type="checkbox"
+              className="accent-teal-300"
               checked={layers[layer]}
               onChange={(event) => setLayerVisible(layer, event.target.checked)}
             />

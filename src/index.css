@@ -1,1 +1,51 @@
 @import "tailwindcss";
+
+:root {
+  /* Native elements such as checkboxes and scrollbars follow the dark theme. */
+  color-scheme: dark;
+  background-color: var(--color-gray-950);
+}
+
+/*
+ * MapLibre's controls are white by default. The .maplibregl-map prefix makes these rules more
+ * specific than MapLibre's own, whichever stylesheet loads last.
+ */
+.maplibregl-map .maplibregl-ctrl-group {
+  background: var(--color-gray-900);
+}
+
+.maplibregl-map .maplibregl-ctrl-group:not(:empty) {
+  box-shadow: 0 0 0 1px var(--color-gray-700);
+}
+
+.maplibregl-map .maplibregl-ctrl-group button + button {
+  border-top-color: var(--color-gray-700);
+}
+
+.maplibregl-map .maplibregl-ctrl button:not(:disabled):hover {
+  background-color: rgb(255 255 255 / 10%);
+}
+
+.maplibregl-map .maplibregl-ctrl-scale {
+  background-color: var(--color-gray-900);
+  border-color: var(--color-gray-500);
+  color: var(--color-gray-200);
+}
+
+.maplibregl-map .maplibregl-ctrl.maplibregl-ctrl-attrib {
+  background-color: var(--color-gray-900);
+  color: var(--color-gray-300);
+}
+
+.maplibregl-map .maplibregl-ctrl-attrib a {
+  color: var(--color-gray-300);
+}
+
+/* MapLibre swaps in its own high-contrast icons when forced colours are on, so leave those alone. */
+@media (forced-colors: none) {
+  /* The icons are dark images, so inverting them makes them readable on the dark controls. */
+  .maplibregl-map .maplibregl-ctrl button .maplibregl-ctrl-icon,
+  .maplibregl-map .maplibregl-ctrl-attrib-button {
+    filter: invert(1);
+  }
+}
