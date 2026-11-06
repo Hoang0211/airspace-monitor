@@ -10,7 +10,8 @@ import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useAppStore } from "../state/store";
 import { addMapIcons } from "./icons.utils";
-import { addStaticLayers, applyLayerVisibility } from "./layers.utils";
+import { addMapLayers, applyLayerVisibility } from "./layers.utils";
+import { startLiveDroneData } from "./liveDroneData.utils";
 
 setWorkerUrl(workerUrl);
 
@@ -31,11 +32,13 @@ export function MapView() {
     map.addControl(new ScaleControl());
 
     let unsubscribe = () => {};
+    let stopLiveData = () => {};
 
     map.on("load", () => {
       addMapIcons(map);
-      addStaticLayers(map);
+      addMapLayers(map);
       applyLayerVisibility(map, useAppStore.getState().layers);
+      stopLiveData = startLiveDroneData(map);
 
       unsubscribe = useAppStore.subscribe((state, previousState) => {
         if (state.layers !== previousState.layers) {
@@ -46,6 +49,7 @@ export function MapView() {
 
     return () => {
       unsubscribe();
+      stopLiveData();
       map.remove();
     };
   }, []);

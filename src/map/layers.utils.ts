@@ -1,12 +1,12 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
 import type { LayerToggle, LayerVisibility } from "../state/store.types";
-import { STATIC_LAYERS, STATIC_SOURCES, TOGGLE_LAYERS } from "./layers";
+import { MAP_LAYERS, MAP_SOURCES, TOGGLE_LAYERS } from "./layers";
 
-export function addStaticLayers(map: Pick<MapLibreMap, "addSource" | "addLayer">): void {
-  for (const [id, source] of Object.entries(STATIC_SOURCES)) {
+export function addMapLayers(map: Pick<MapLibreMap, "addSource" | "addLayer">): void {
+  for (const [id, source] of Object.entries(MAP_SOURCES)) {
     map.addSource(id, source);
   }
-  for (const layer of STATIC_LAYERS) {
+  for (const layer of MAP_LAYERS) {
     map.addLayer(layer);
   }
 }

@@ -2,9 +2,36 @@ import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
 import { describe, expect, it } from "vitest";
 import { SENSORS } from "../data/sensors";
 import { ZONES } from "../data/zones";
-import { coverageToGeoJSON, sensorsToGeoJSON, zonesToGeoJSON } from "./geojson.utils";
+import type { Drone } from "../simulation/droneSimulator.types";
+import {
+  coverageToGeoJSON,
+  dronesToGeoJSON,
+  linesToGeoJSON,
+  pilotsToGeoJSON,
+  sensorsToGeoJSON,
+  zonesToGeoJSON,
+} from "./geojson.utils";
 
 const METERS_PER_DEGREE_LAT = 111_195;
+
+function makeDrone(overrides: Partial<Drone> = {}): Drone {
+  return {
+    id: "UAV-012",
+    behavior: "transit",
+    position: [24.97, 60.3],
+    pilot: [24.98, 60.31],
+    heading: 45,
+    speed: 10,
+    waypoints: [[25, 60.4]],
+    waypointIndex: 0,
+    missionRemaining: null,
+    trail: [
+      [24.96, 60.29],
+      [24.97, 60.3],
+    ],
+    ...overrides,
+  };
+}
 
 function metersBetween([lng1, lat1]: number[], [lng2, lat2]: number[]): number {
   const metersPerDegreeLng = METERS_PER_DEGREE_LAT * Math.cos((lat1 * Math.PI) / 180);
@@ -41,6 +68,47 @@ describe("GeoJSON conversion", () => {
     expect(features).toHaveLength(ZONES.length);
     expect(features[0].geometry).toEqual(ZONES[0].polygon);
     expect(features[0].properties?.name).toBe(ZONES[0].name);
+  });
+
+  it("draws each drone at its position, with a numeric ID and its heading", () => {
+    const drone = makeDrone();
+    const [feature] = dronesToGeoJSON([drone]).features;
+
+    expect(feature.id).toBe(12);
+    expect(feature.geometry.coordinates).toEqual(drone.position);
+    expect(feature.properties).toEqual({ droneId: "UAV-012", heading: 45 });
+  });
+
+  it("draws each pilot at the pilot's position", () => {
+    const drone = makeDrone();
+    const [feature] = pilotsToGeoJSON([drone]).features;
+
+    expect(feature.geometry.coordinates).toEqual(drone.pilot);
+    expect(feature.properties?.droneId).toBe("UAV-012");
+  });
+
+  it("creates a trail and a pilot link for each drone", () => {
+    const drone = makeDrone();
+    const { features } = linesToGeoJSON([drone]);
+    const trail = features.find((feature) => feature.properties?.kind === "trail");
+    const link = features.find((feature) => feature.properties?.kind === "pilot-link");
+
+    expect(features).toHaveLength(2);
+    expect(trail?.id).toBe(12);
+    expect(trail?.geometry.coordinates).toEqual(drone.trail);
+    expect(link?.geometry.coordinates).toEqual([drone.pilot, drone.position]);
+  });
+
+  it("skips a trail that is too short to be a line", () => {
+    const { features } = linesToGeoJSON([makeDrone({ trail: [[24.97, 60.3]] })]);
+
+    expect(features.map((feature) => feature.properties?.kind)).toEqual(["pilot-link"]);
+  });
+
+  it("returns empty collections when there are no drones", () => {
+    expect(dronesToGeoJSON([]).features).toEqual([]);
+    expect(pilotsToGeoJSON([]).features).toEqual([]);
+    expect(linesToGeoJSON([]).features).toEqual([]);
   });
 });
 
