@@ -87,7 +87,7 @@ describe("startLiveDroneData", () => {
     stop();
   });
 
-  it.each([2, 5] as const)("updates %i times per second at that speed", (speed) => {
+  it.each([2, 5, 10] as const)("updates %i times per second at that speed", (speed) => {
     const { map, setData } = fakeMap();
 
     const { setPlayback, stop } = startLiveDroneData(map, NORMAL, vi.fn());

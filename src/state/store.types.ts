@@ -5,7 +5,7 @@ export type LayerToggle = "sensors" | "coverage" | "zones" | "trails" | "pilots"
 
 export type LayerVisibility = Record<LayerToggle, boolean>;
 
-export type PlaybackSpeed = 1 | 2 | 5;
+export type PlaybackSpeed = 1 | 2 | 5 | 10;
 
 export interface Playback {
   playing: boolean;

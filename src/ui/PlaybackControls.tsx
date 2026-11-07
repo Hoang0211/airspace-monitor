@@ -1,7 +1,7 @@
 import { useAppStore } from "../state/store";
 import type { PlaybackSpeed } from "../state/store.types";
 
-const SPEEDS: PlaybackSpeed[] = [1, 2, 5];
+const SPEEDS: PlaybackSpeed[] = [1, 2, 5, 10];
 
 const BUTTON_CLASS = "cursor-pointer rounded px-3 py-1 text-sm font-semibold";
 

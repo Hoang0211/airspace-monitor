@@ -16,6 +16,7 @@ describe("PlaybackControls", () => {
     expect(screen.getByRole("button", { name: "1×" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "2×" })).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByRole("button", { name: "5×" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "10×" })).toHaveAttribute("aria-pressed", "false");
   });
 
   it("pauses and plays again", async () => {
