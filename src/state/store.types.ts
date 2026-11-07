@@ -1,3 +1,4 @@
+import type { LngLat } from "../data/geo.types";
 import type { Alert, DroneSummary } from "../detection/detection.types";
 
 export type LayerToggle = "sensors" | "coverage" | "zones" | "trails" | "pilots";
@@ -26,4 +27,7 @@ export interface AppState {
   /** Stays set after the drone is gone, so the details panel can report the lost contact. */
   selectedDroneId: string | null;
   selectDrone: (droneId: string | null) => void;
+  /** Where the map was last asked to fly. Each request is a new value, even for the same place. */
+  flyTarget: LngLat | null;
+  flyTo: (target: LngLat) => void;
 }

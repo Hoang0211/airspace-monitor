@@ -21,4 +21,6 @@ export const useAppStore = create<AppState>()((set) => ({
     })),
   selectedDroneId: null,
   selectDrone: (selectedDroneId) => set({ selectedDroneId }),
+  flyTarget: null,
+  flyTo: ([lng, lat]) => set({ flyTarget: [lng, lat] }),
 }));

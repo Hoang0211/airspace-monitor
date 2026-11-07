@@ -5,8 +5,8 @@ export function AlertList() {
   const alerts = useAppStore((state) => state.alerts);
 
   return (
-    // Takes the space left in the panel, which also keeps the sections below it at the bottom.
-    <section className="flex min-h-32 flex-1 flex-col">
+    // Shares the space left in the panel, which also keeps the sections below it at the bottom.
+    <section className="flex min-h-24 flex-1 flex-col">
       <h2 className="mb-2 text-sm font-semibold">Alerts ({alerts.length})</h2>
       {alerts.length === 0 ? (
         <p className="text-sm text-gray-400">No alerts</p>

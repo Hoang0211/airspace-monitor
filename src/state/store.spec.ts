@@ -14,6 +14,18 @@ const DRONE: DroneSummary = {
   pilot: [24.98, 60.3],
 };
 
+describe("flyTo", () => {
+  it("makes each request a new value, so flying to the same place twice still counts", () => {
+    useAppStore.getState().flyTo([24.97, 60.3]);
+    const first = useAppStore.getState().flyTarget;
+
+    useAppStore.getState().flyTo([24.97, 60.3]);
+
+    expect(useAppStore.getState().flyTarget).toEqual(first);
+    expect(useAppStore.getState().flyTarget).not.toBe(first);
+  });
+});
+
 describe("recordTick", () => {
   beforeEach(() => {
     useAppStore.setState(useAppStore.getInitialState());

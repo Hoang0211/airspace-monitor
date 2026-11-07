@@ -17,6 +17,9 @@ import { startLiveDroneData } from "./liveDroneData.utils";
 
 setWorkerUrl(workerUrl);
 
+// Close enough to show drone labels, without zooming back out if already closer.
+const FLY_TO_MIN_ZOOM = 13;
+
 export function MapView() {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -58,6 +61,9 @@ export function MapView() {
         }
         if (state.selectedDroneId !== previousState.selectedDroneId) {
           applyDroneSelection(map, previousState.selectedDroneId, state.selectedDroneId);
+        }
+        if (state.flyTarget && state.flyTarget !== previousState.flyTarget) {
+          map.flyTo({ center: state.flyTarget, zoom: Math.max(map.getZoom(), FLY_TO_MIN_ZOOM) });
         }
       });
     });

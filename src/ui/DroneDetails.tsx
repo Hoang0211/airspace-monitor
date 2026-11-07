@@ -1,14 +1,8 @@
-import type { DroneStatus } from "../detection/detection.types";
 import type { Behavior } from "../simulation/droneSimulator.types";
 import { useAppStore } from "../state/store";
 import { formatCoordinates, formatDistance } from "./droneDetails.utils";
+import { STATUS_LABELS } from "./droneStatus";
 import { formatSiteTime } from "./siteTime.utils";
-
-const STATUS_LABELS: Record<DroneStatus, { label: string; className: string }> = {
-  alert: { label: "Alert", className: "text-red-400" },
-  tracked: { label: "Tracked", className: "text-amber-400" },
-  undetected: { label: "Undetected", className: "text-gray-400" },
-};
 
 const BEHAVIOR_LABELS: Record<Behavior, string> = {
   patrol: "Patrol",
