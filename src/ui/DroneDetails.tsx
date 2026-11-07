@@ -16,10 +16,18 @@ export function DroneDetails() {
   const siteTime = useAppStore((state) => state.siteTime);
   const selectDrone = useAppStore((state) => state.selectDrone);
 
-  if (!selectedDroneId) return null;
+  // A fixed height, so the lists above never shift as the selection changes.
+  if (!selectedDroneId) {
+    return (
+      <section className="h-48 shrink-0">
+        <h2 className="mb-2 text-sm font-semibold">Details</h2>
+        <p className="text-sm text-gray-400">Select a drone to see its details.</p>
+      </section>
+    );
+  }
 
   return (
-    <section>
+    <section className="h-48 shrink-0">
       <div className="mb-2 flex items-baseline justify-between">
         <h2 className="text-sm font-semibold">{selectedDroneId}</h2>
         <button

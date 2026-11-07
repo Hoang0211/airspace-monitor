@@ -1,6 +1,6 @@
 import type { Alert, ClassifiedDrone, ZoneEntries, ZonesByDrone } from "./detection.types";
 
-const MAX_ALERTS = 100;
+const MAX_ALERTS = 20;
 
 /**
  * Compares where drones are now with where they were on the last tick, and raises an alert only for

@@ -24,12 +24,14 @@ describe("DroneDetails", () => {
     useAppStore.setState(useAppStore.getInitialState());
   });
 
-  it("shows nothing when no drone is selected", () => {
+  it("invites a selection when no drone is selected", () => {
     useAppStore.getState().recordTick(0, [], [makeSummary()]);
 
-    const { container } = render(<DroneDetails />);
+    render(<DroneDetails />);
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByRole("heading", { name: "Details" })).toBeInTheDocument();
+    expect(screen.getByText("Select a drone to see its details.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Close" })).not.toBeInTheDocument();
   });
 
   it("shows the selected drone's details", () => {
@@ -87,6 +89,6 @@ describe("DroneDetails", () => {
     await user.click(screen.getByRole("button", { name: "Close" }));
 
     expect(useAppStore.getState().selectedDroneId).toBeNull();
-    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Details" })).toBeInTheDocument();
   });
 });

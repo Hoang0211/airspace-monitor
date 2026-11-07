@@ -119,14 +119,14 @@ describe("addAlerts", () => {
     expect(list.map((alert) => alert.id)).toEqual(["new", "old"]);
   });
 
-  it("drops the oldest alerts beyond 100", () => {
-    const full = Array.from({ length: 100 }, (_, index) => makeAlert(`old-${index}`));
+  it("drops the oldest alerts beyond 20", () => {
+    const full = Array.from({ length: 20 }, (_, index) => makeAlert(`old-${index}`));
 
     const list = addAlerts(full, [makeAlert("new")]);
 
-    expect(list).toHaveLength(100);
+    expect(list).toHaveLength(20);
     expect(list[0].id).toBe("new");
-    expect(list.at(-1)?.id).toBe("old-98");
+    expect(list.at(-1)?.id).toBe("old-18");
   });
 
   it("leaves the existing list unchanged", () => {
