@@ -9,6 +9,7 @@ import {
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useAppStore } from "../state/store";
+import { enableDroneHover } from "./droneHover.utils";
 import { addMapIcons } from "./icons.utils";
 import { addMapLayers, applyLayerVisibility } from "./layers.utils";
 import { startLiveDroneData } from "./liveDroneData.utils";
@@ -33,6 +34,7 @@ export function MapView() {
 
     let unsubscribe = () => {};
     let stopLiveData = () => {};
+    let disableDroneHover = () => {};
 
     map.on("load", () => {
       addMapIcons(map);
@@ -42,6 +44,7 @@ export function MapView() {
       const { playback, recordTick } = useAppStore.getState();
       const liveData = startLiveDroneData(map, playback, recordTick);
       stopLiveData = liveData.stop;
+      disableDroneHover = enableDroneHover(map);
 
       unsubscribe = useAppStore.subscribe((state, previousState) => {
         if (state.layers !== previousState.layers) {
@@ -56,6 +59,7 @@ export function MapView() {
     return () => {
       unsubscribe();
       stopLiveData();
+      disableDroneHover();
       map.remove();
     };
   }, []);

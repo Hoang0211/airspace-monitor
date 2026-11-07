@@ -12,6 +12,7 @@ describe("layer definitions", () => {
       "pilot-links",
       "sensors",
       "pilots",
+      "drones-highlight",
       "drones",
       "drones-label",
     ]);

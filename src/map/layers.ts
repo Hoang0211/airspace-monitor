@@ -31,6 +31,8 @@ const STATUS_COLOR: ExpressionSpecification = [
   UNDETECTED_COLOR,
 ];
 
+const IS_HOVERED: ExpressionSpecification = ["boolean", ["feature-state", "hover"], false];
+
 /** An undetected drone is drawn at half the opacity of a detected one. */
 function fadedWhenUndetected(opacity: number): ExpressionSpecification {
   return ["match", ["get", "status"], "undetected", opacity / 2, opacity];
@@ -129,6 +131,20 @@ export const MAP_LAYERS: AddLayerObject[] = [
       "icon-image": PILOT_ICON_IMAGE,
       "icon-allow-overlap": true,
       "icon-ignore-placement": true,
+    },
+  },
+  {
+    // A ring behind the arrow, as feature-state can't change the size of an icon.
+    id: "drones-highlight",
+    type: "circle",
+    source: "drones",
+    paint: {
+      "circle-radius": 15,
+      "circle-color": LABEL_COLOR,
+      "circle-opacity": ["case", IS_HOVERED, 0.15, 0],
+      "circle-stroke-color": LABEL_COLOR,
+      "circle-stroke-width": 2,
+      "circle-stroke-opacity": ["case", IS_HOVERED, 1, 0],
     },
   },
   {
