@@ -2,7 +2,7 @@ import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
 import { describe, expect, it } from "vitest";
 import { SENSORS } from "../data/sensors";
 import { ZONES } from "../data/zones";
-import type { Drone } from "../simulation/droneSimulator.types";
+import type { ClassifiedDrone } from "../detection/detection.types";
 import {
   coverageToGeoJSON,
   dronesToGeoJSON,
@@ -14,7 +14,7 @@ import {
 
 const METERS_PER_DEGREE_LAT = 111_195;
 
-function makeDrone(overrides: Partial<Drone> = {}): Drone {
+function makeDrone(overrides: Partial<ClassifiedDrone> = {}): ClassifiedDrone {
   return {
     id: "UAV-012",
     behavior: "transit",
@@ -29,6 +29,8 @@ function makeDrone(overrides: Partial<Drone> = {}): Drone {
       [24.96, 60.29],
       [24.97, 60.3],
     ],
+    status: "tracked",
+    zone: null,
     ...overrides,
   };
 }
@@ -70,13 +72,13 @@ describe("GeoJSON conversion", () => {
     expect(features[0].properties?.name).toBe(ZONES[0].name);
   });
 
-  it("draws each drone at its position, with a numeric ID and its heading", () => {
-    const drone = makeDrone();
+  it("draws each drone at its position, with a numeric ID, its heading and its status", () => {
+    const drone = makeDrone({ status: "alert" });
     const [feature] = dronesToGeoJSON([drone]).features;
 
     expect(feature.id).toBe(12);
     expect(feature.geometry.coordinates).toEqual(drone.position);
-    expect(feature.properties).toEqual({ droneId: "UAV-012", heading: 45 });
+    expect(feature.properties).toEqual({ droneId: "UAV-012", heading: 45, status: "alert" });
   });
 
   it("draws each pilot at the pilot's position", () => {
@@ -88,7 +90,7 @@ describe("GeoJSON conversion", () => {
   });
 
   it("creates a trail and a pilot link for each drone", () => {
-    const drone = makeDrone();
+    const drone = makeDrone({ status: "undetected" });
     const { features } = linesToGeoJSON([drone]);
     const trail = features.find((feature) => feature.properties?.kind === "trail");
     const link = features.find((feature) => feature.properties?.kind === "pilot-link");
@@ -96,6 +98,7 @@ describe("GeoJSON conversion", () => {
     expect(features).toHaveLength(2);
     expect(trail?.id).toBe(12);
     expect(trail?.geometry.coordinates).toEqual(drone.trail);
+    expect(trail?.properties?.status).toBe("undetected");
     expect(link?.geometry.coordinates).toEqual([drone.pilot, drone.position]);
   });
 

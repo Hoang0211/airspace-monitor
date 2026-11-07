@@ -2,6 +2,7 @@ import { circle } from "@turf/circle";
 import type { Feature, FeatureCollection, LineString, Point, Polygon } from "geojson";
 import type { Sensor } from "../data/sensors.types";
 import type { Zone } from "../data/zones.types";
+import type { ClassifiedDrone } from "../detection/detection.types";
 import type { Drone } from "../simulation/droneSimulator.types";
 
 /** MapLibre's feature-state needs a numeric ID, so "UAV-012" becomes 12. */
@@ -44,14 +45,14 @@ export function zonesToGeoJSON(zones: Zone[]): FeatureCollection<Polygon> {
   };
 }
 
-export function dronesToGeoJSON(drones: Drone[]): FeatureCollection<Point> {
+export function dronesToGeoJSON(drones: ClassifiedDrone[]): FeatureCollection<Point> {
   return {
     type: "FeatureCollection",
     features: drones.map((drone) => ({
       type: "Feature",
       id: droneFeatureId(drone),
       geometry: { type: "Point", coordinates: drone.position },
-      properties: { droneId: drone.id, heading: drone.heading },
+      properties: { droneId: drone.id, heading: drone.heading, status: drone.status },
     })),
   };
 }
@@ -68,7 +69,7 @@ export function pilotsToGeoJSON(drones: Drone[]): FeatureCollection<Point> {
 }
 
 /** One source for both kinds of line, with layers choosing between them by their `kind`. */
-export function linesToGeoJSON(drones: Drone[]): FeatureCollection<LineString> {
+export function linesToGeoJSON(drones: ClassifiedDrone[]): FeatureCollection<LineString> {
   return {
     type: "FeatureCollection",
     features: drones.flatMap((drone) => {
@@ -86,7 +87,7 @@ export function linesToGeoJSON(drones: Drone[]): FeatureCollection<LineString> {
           type: "Feature",
           id: droneFeatureId(drone),
           geometry: { type: "LineString", coordinates: drone.trail },
-          properties: { droneId: drone.id, kind: "trail" },
+          properties: { droneId: drone.id, kind: "trail", status: drone.status },
         });
       }
 

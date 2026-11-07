@@ -1,4 +1,7 @@
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
+import { SENSORS } from "../data/sensors";
+import { ZONES } from "../data/zones";
+import { classifyDrone } from "../detection/classifyDrone.utils";
 import { DroneSimulator } from "../simulation/droneSimulator";
 import type { Drone } from "../simulation/droneSimulator.types";
 import type { Playback } from "../state/store.types";
@@ -10,9 +13,14 @@ const TICK_INTERVAL_MS = 1000;
 type LiveMap = Pick<MapLibreMap, "getSource">;
 
 function updateSources(map: LiveMap, drones: Drone[]): void {
-  map.getSource<GeoJSONSource>("drones")?.setData(dronesToGeoJSON(drones));
+  const classified = drones.map((drone) => ({
+    ...drone,
+    ...classifyDrone(drone, SENSORS, ZONES),
+  }));
+
+  map.getSource<GeoJSONSource>("drones")?.setData(dronesToGeoJSON(classified));
   map.getSource<GeoJSONSource>("pilots")?.setData(pilotsToGeoJSON(drones));
-  map.getSource<GeoJSONSource>("lines")?.setData(linesToGeoJSON(drones));
+  map.getSource<GeoJSONSource>("lines")?.setData(linesToGeoJSON(classified));
 }
 
 /**

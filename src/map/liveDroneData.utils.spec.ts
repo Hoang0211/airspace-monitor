@@ -1,4 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { SENSORS } from "../data/sensors";
+import { ZONES } from "../data/zones";
+import { classifyDrone } from "../detection/classifyDrone.utils";
 import type { Playback } from "../state/store.types";
 import { startLiveDroneData } from "./liveDroneData.utils";
 
@@ -56,6 +59,28 @@ describe("startLiveDroneData", () => {
     const after = setData.drones.mock.lastCall?.[0].features[0].geometry.coordinates;
 
     expect(after).not.toEqual(before);
+
+    stop();
+  });
+
+  it("gives every drone the status that matches where it is", () => {
+    const { map, setData } = fakeMap();
+
+    const { stop } = startLiveDroneData(map, NORMAL);
+    const seen = new Set<string>();
+
+    for (let i = 0; i < 600; i++) {
+      vi.advanceTimersByTime(1000);
+
+      for (const { geometry, properties } of setData.drones.mock.lastCall?.[0].features ?? []) {
+        const position = geometry.coordinates;
+
+        expect(properties.status).toBe(classifyDrone({ position }, SENSORS, ZONES).status);
+        seen.add(properties.status);
+      }
+    }
+
+    expect(seen).toEqual(new Set(["undetected", "tracked", "alert"]));
 
     stop();
   });

@@ -35,4 +35,18 @@ describe("layer definitions", () => {
   it("hides the pilot links along with the pilots", () => {
     expect(TOGGLE_LAYERS.pilots).toEqual(["pilots", "pilot-links"]);
   });
+
+  it("gives each drone status its own color, on the arrow and the trail alike", () => {
+    const paintOf = (id: string) => {
+      const layer = MAP_LAYERS.find((candidate) => candidate.id === id);
+
+      return (layer && "paint" in layer ? layer.paint : {}) as Record<string, unknown[]>;
+    };
+    const arrowColor = paintOf("drones")["icon-color"];
+    const [, , alertName, alert, trackedName, tracked, undetected] = arrowColor;
+
+    expect([alertName, trackedName]).toEqual(["alert", "tracked"]);
+    expect(new Set([alert, tracked, undetected]).size).toBe(3);
+    expect(paintOf("trails")["line-color"]).toEqual(arrowColor);
+  });
 });

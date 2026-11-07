@@ -1,4 +1,8 @@
-import type { AddLayerObject, GeoJSONSourceSpecification } from "maplibre-gl";
+import type {
+  AddLayerObject,
+  ExpressionSpecification,
+  GeoJSONSourceSpecification,
+} from "maplibre-gl";
 import { SENSORS } from "../data/sensors";
 import { ZONES } from "../data/zones";
 import type { LayerToggle } from "../state/store.types";
@@ -14,7 +18,23 @@ export const COVERAGE_COLOR = "#5eead4";
 export const LABEL_HALO_COLOR = "#0b1014";
 export const PILOT_COLOR = "#e6edf3";
 const LABEL_COLOR = "#e6edf3";
-const DRONE_COLOR = "#fbbf24";
+const TRACKED_COLOR = "#fbbf24";
+const UNDETECTED_COLOR = "#9ca3af";
+
+const STATUS_COLOR: ExpressionSpecification = [
+  "match",
+  ["get", "status"],
+  "alert",
+  ZONE_COLOR,
+  "tracked",
+  TRACKED_COLOR,
+  UNDETECTED_COLOR,
+];
+
+/** An undetected drone is drawn at half the opacity of a detected one. */
+function fadedWhenUndetected(opacity: number): ExpressionSpecification {
+  return ["match", ["get", "status"], "undetected", opacity / 2, opacity];
+}
 
 const EMPTY_GEOJSON: GeoJSONSourceSpecification["data"] = {
   type: "FeatureCollection",
@@ -63,7 +83,11 @@ export const MAP_LAYERS: AddLayerObject[] = [
     source: "lines",
     filter: ["==", ["get", "kind"], "trail"],
     layout: { "line-cap": "round", "line-join": "round" },
-    paint: { "line-color": DRONE_COLOR, "line-opacity": 0.5, "line-width": 2 },
+    paint: {
+      "line-color": STATUS_COLOR,
+      "line-opacity": fadedWhenUndetected(0.5),
+      "line-width": 2,
+    },
   },
   {
     id: "pilot-links",
@@ -119,7 +143,8 @@ export const MAP_LAYERS: AddLayerObject[] = [
       "icon-ignore-placement": true,
     },
     paint: {
-      "icon-color": DRONE_COLOR,
+      "icon-color": STATUS_COLOR,
+      "icon-opacity": fadedWhenUndetected(1),
       "icon-halo-color": LABEL_HALO_COLOR,
       "icon-halo-width": 1,
     },
@@ -140,6 +165,7 @@ export const MAP_LAYERS: AddLayerObject[] = [
     },
     paint: {
       "text-color": LABEL_COLOR,
+      "text-opacity": fadedWhenUndetected(1),
       "text-halo-color": LABEL_HALO_COLOR,
       "text-halo-width": 1.5,
     },
