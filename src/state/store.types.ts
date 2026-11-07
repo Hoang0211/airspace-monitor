@@ -1,4 +1,4 @@
-import type { Alert } from "../detection/detection.types";
+import type { Alert, DroneSummary } from "../detection/detection.types";
 
 export type LayerToggle = "sensors" | "coverage" | "zones" | "trails" | "pilots";
 
@@ -21,5 +21,9 @@ export interface AppState {
   siteTime: number;
   /** Newest first. */
   alerts: Alert[];
-  recordTick: (siteTime: number, newAlerts: Alert[]) => void;
+  drones: DroneSummary[];
+  recordTick: (siteTime: number, newAlerts: Alert[], drones: DroneSummary[]) => void;
+  /** Stays set after the drone is gone, so the details panel can report the lost contact. */
+  selectedDroneId: string | null;
+  selectDrone: (droneId: string | null) => void;
 }

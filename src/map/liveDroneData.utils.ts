@@ -1,9 +1,17 @@
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
+import { distance } from "../data/geo.utils";
 import { SENSORS } from "../data/sensors";
 import { ZONES } from "../data/zones";
 import { detectZoneEntries } from "../detection/alerts.utils";
 import { classifyDrone } from "../detection/classifyDrone.utils";
-import type { Alert, ClassifiedDrone, ZonesByDrone } from "../detection/detection.types";
+import type {
+  Alert,
+  ClassifiedDrone,
+  DroneSummary,
+  FirstSeenByDrone,
+  ZonesByDrone,
+} from "../detection/detection.types";
+import { updateFirstSeen } from "../detection/firstSeen.utils";
 import { DroneSimulator } from "../simulation/droneSimulator";
 import type { Drone } from "../simulation/droneSimulator.types";
 import type { Playback } from "../state/store.types";
@@ -22,18 +30,19 @@ function updateSources(map: LiveMap, drones: ClassifiedDrone[]): void {
 
 /**
  * Runs the simulation and hands each update straight to the map, so the drones never go through
- * React. Only the site time and any new alerts go further, through `onTick`. Each tick is one
- * simulated second, so a higher speed simply ticks more often. Returns the controls for changing
- * the playback and stopping for good.
+ * React. Only the site time, any new alerts and a small summary of each drone go further, through
+ * `onTick`. Each tick is one simulated second, so a higher speed simply ticks more often. Returns
+ * the controls for changing the playback and stopping for good.
  */
 export function startLiveDroneData(
   map: LiveMap,
   initialPlayback: Playback,
-  onTick: (siteTime: number, newAlerts: Alert[]) => void,
+  onTick: (siteTime: number, newAlerts: Alert[], drones: DroneSummary[]) => void,
 ): { setPlayback: (playback: Playback) => void; stop: () => void } {
   const simulator = new DroneSimulator();
   const openedAt = simulator.simTime;
   let zonesByDrone: ZonesByDrone = new Map();
+  let firstSeen: FirstSeenByDrone = new Map();
   let interval: ReturnType<typeof setInterval> | undefined;
 
   const update = (drones: Drone[]) => {
@@ -46,7 +55,24 @@ export function startLiveDroneData(
     const siteTime = simulator.simTime - openedAt;
     const entries = detectZoneEntries(zonesByDrone, classified, siteTime);
     zonesByDrone = entries.zonesByDrone;
-    onTick(siteTime, entries.alerts);
+    firstSeen = updateFirstSeen(firstSeen, classified, siteTime);
+
+    onTick(
+      siteTime,
+      entries.alerts,
+      // A small copy of each drone, so its trail and waypoints stay out of React state.
+      classified.map(({ id, behavior, status, speed, position, pilot }) => ({
+        id,
+        behavior,
+        status,
+        speed,
+        position,
+        pilot,
+        firstSeenAt: firstSeen.get(id) ?? null,
+        // Worked out here, as a drone doesn't store its distance to the pilot.
+        distanceToPilot: distance(position, pilot),
+      })),
+    );
   };
 
   const stop = () => clearInterval(interval);

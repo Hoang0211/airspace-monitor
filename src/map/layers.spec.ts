@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAP_LAYERS, MAP_SOURCES, TOGGLE_LAYERS } from "./layers";
+import { MAP_LAYERS, MAP_SOURCES, pilotLinkFilter, TOGGLE_LAYERS } from "./layers";
 
 describe("layer definitions", () => {
   it("draws the layers in the agreed order", () => {
@@ -35,6 +35,13 @@ describe("layer definitions", () => {
 
   it("hides the pilot links along with the pilots", () => {
     expect(TOGGLE_LAYERS.pilots).toEqual(["pilots", "pilot-links"]);
+  });
+
+  it("draws no pilot links until a drone is selected", () => {
+    const links = MAP_LAYERS.find((layer) => layer.id === "pilot-links");
+
+    expect(links && "filter" in links && links.filter).toEqual(pilotLinkFilter(null));
+    expect(JSON.stringify(pilotLinkFilter("UAV-007"))).toContain("UAV-007");
   });
 
   it("gives each drone status its own color, on the arrow and the trail alike", () => {

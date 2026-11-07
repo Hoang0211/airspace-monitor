@@ -6,8 +6,8 @@ import type { ClassifiedDrone } from "../detection/detection.types";
 import type { Drone } from "../simulation/droneSimulator.types";
 
 /** MapLibre's feature-state needs a numeric ID, so "UAV-012" becomes 12. */
-function droneFeatureId(drone: Drone): number {
-  return Number(drone.id.slice("UAV-".length));
+export function droneFeatureId(droneId: string): number {
+  return Number(droneId.slice("UAV-".length));
 }
 
 export function sensorsToGeoJSON(sensors: Sensor[]): FeatureCollection<Point> {
@@ -50,7 +50,7 @@ export function dronesToGeoJSON(drones: ClassifiedDrone[]): FeatureCollection<Po
     type: "FeatureCollection",
     features: drones.map((drone) => ({
       type: "Feature",
-      id: droneFeatureId(drone),
+      id: droneFeatureId(drone.id),
       geometry: { type: "Point", coordinates: drone.position },
       properties: { droneId: drone.id, heading: drone.heading, status: drone.status },
     })),
@@ -85,7 +85,7 @@ export function linesToGeoJSON(drones: ClassifiedDrone[]): FeatureCollection<Lin
       if (drone.trail.length >= 2) {
         lines.push({
           type: "Feature",
-          id: droneFeatureId(drone),
+          id: droneFeatureId(drone.id),
           geometry: { type: "LineString", coordinates: drone.trail },
           properties: { droneId: drone.id, kind: "trail", status: drone.status },
         });

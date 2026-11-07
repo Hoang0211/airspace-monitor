@@ -17,7 +17,7 @@ describe("SiteTime", () => {
   it("follows the site time in the store", () => {
     render(<SiteTime />);
 
-    act(() => useAppStore.getState().recordTick(135, []));
+    act(() => useAppStore.getState().recordTick(135, [], []));
 
     expect(screen.getByRole("timer")).toHaveTextContent("02:15");
   });

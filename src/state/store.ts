@@ -11,10 +11,14 @@ export const useAppStore = create<AppState>()((set) => ({
   setSpeed: (speed) => set((state) => ({ playback: { ...state.playback, speed } })),
   siteTime: 0,
   alerts: [],
-  recordTick: (siteTime, newAlerts) =>
+  drones: [],
+  recordTick: (siteTime, newAlerts, drones) =>
     set((state) => ({
       siteTime,
       // Keeps the same list when nothing is new, so the alert list doesn't re-render on every tick.
       alerts: newAlerts.length > 0 ? addAlerts(state.alerts, newAlerts) : state.alerts,
+      drones,
     })),
+  selectedDroneId: null,
+  selectDrone: (selectedDroneId) => set({ selectedDroneId }),
 }));

@@ -1,6 +1,7 @@
 import type {
   AddLayerObject,
   ExpressionSpecification,
+  FilterSpecification,
   GeoJSONSourceSpecification,
 } from "maplibre-gl";
 import { SENSORS } from "../data/sensors";
@@ -32,6 +33,16 @@ const STATUS_COLOR: ExpressionSpecification = [
 ];
 
 const IS_HOVERED: ExpressionSpecification = ["boolean", ["feature-state", "hover"], false];
+const IS_SELECTED: ExpressionSpecification = ["boolean", ["feature-state", "selected"], false];
+
+/** Only the selected drone's pilot link is drawn, as a line for every drone clutters the map. */
+export function pilotLinkFilter(selectedDroneId: string | null): FilterSpecification {
+  return [
+    "all",
+    ["==", ["get", "kind"], "pilot-link"],
+    ["==", ["get", "droneId"], selectedDroneId ?? ""],
+  ];
+}
 
 /** An undetected drone is drawn at half the opacity of a detected one. */
 function fadedWhenUndetected(opacity: number): ExpressionSpecification {
@@ -87,7 +98,7 @@ export const MAP_LAYERS: AddLayerObject[] = [
     layout: { "line-cap": "round", "line-join": "round" },
     paint: {
       "line-color": STATUS_COLOR,
-      "line-opacity": fadedWhenUndetected(0.5),
+      "line-opacity": ["case", IS_SELECTED, 1, fadedWhenUndetected(0.5)],
       "line-width": 2,
     },
   },
@@ -95,7 +106,7 @@ export const MAP_LAYERS: AddLayerObject[] = [
     id: "pilot-links",
     type: "line",
     source: "lines",
-    filter: ["==", ["get", "kind"], "pilot-link"],
+    filter: pilotLinkFilter(null),
     paint: {
       "line-color": PILOT_COLOR,
       "line-opacity": 0.5,
@@ -141,10 +152,10 @@ export const MAP_LAYERS: AddLayerObject[] = [
     paint: {
       "circle-radius": 15,
       "circle-color": LABEL_COLOR,
-      "circle-opacity": ["case", IS_HOVERED, 0.15, 0],
+      "circle-opacity": ["case", IS_SELECTED, 0.3, IS_HOVERED, 0.15, 0],
       "circle-stroke-color": LABEL_COLOR,
-      "circle-stroke-width": 2,
-      "circle-stroke-opacity": ["case", IS_HOVERED, 1, 0],
+      "circle-stroke-width": ["case", IS_SELECTED, 3, 2],
+      "circle-stroke-opacity": ["case", ["any", IS_SELECTED, IS_HOVERED], 1, 0],
     },
   },
   {

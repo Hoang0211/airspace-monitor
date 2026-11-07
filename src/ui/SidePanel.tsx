@@ -1,4 +1,5 @@
 import { AlertList } from "./AlertList";
+import { DroneDetails } from "./DroneDetails";
 import { LayerToggles } from "./LayerToggles";
 import { PlaybackControls } from "./PlaybackControls";
 import { SiteTime } from "./SiteTime";
@@ -9,6 +10,7 @@ export function SidePanel() {
       <PlaybackControls />
       <SiteTime />
       <AlertList />
+      <DroneDetails />
       <LayerToggles />
     </aside>
   );

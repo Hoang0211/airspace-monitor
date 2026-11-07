@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { distance } from "../data/geo.utils";
 import { SENSORS } from "../data/sensors";
 import { ZONES } from "../data/zones";
 import { classifyDrone } from "../detection/classifyDrone.utils";
@@ -208,6 +209,65 @@ describe("startLiveDroneData", () => {
         for (const alert of alerts) expect(alert.time).toBe(siteTime);
       }
       expect(alertsFrom(onTick).length).toBeGreaterThan(0);
+
+      stop();
+    });
+  });
+
+  describe("drone summaries", () => {
+    it("reports every drone on each tick, with the status shown on the map", () => {
+      const { map, setData } = fakeMap();
+      const onTick = vi.fn();
+
+      const { stop } = startLiveDroneData(map, NORMAL, onTick);
+      vi.advanceTimersByTime(60_000);
+
+      const summaries = onTick.mock.lastCall?.[2];
+      const features = setData.drones.mock.lastCall?.[0].features;
+
+      expect(summaries.map(({ id }: { id: string }) => id)).toEqual(
+        features.map((feature: { properties: { droneId: string } }) => feature.properties.droneId),
+      );
+      expect(summaries.map(({ status }: { status: string }) => status)).toEqual(
+        features.map((feature: { properties: { status: string } }) => feature.properties.status),
+      );
+
+      stop();
+    });
+
+    it("gives each drone its distance to its pilot", () => {
+      const { map } = fakeMap();
+      const onTick = vi.fn();
+
+      const { stop } = startLiveDroneData(map, NORMAL, onTick);
+      const summaries = onTick.mock.lastCall?.[2];
+
+      expect(summaries.length).toBeGreaterThan(0);
+      for (const { position, pilot, distanceToPilot } of summaries) {
+        expect(distanceToPilot).toBe(distance(position, pilot));
+      }
+
+      stop();
+    });
+
+    it("keeps each drone's first seen time, and only sets it once detected", () => {
+      const { map } = fakeMap();
+      const onTick = vi.fn();
+      const firstSeen = new Map<string, number>();
+
+      const { stop } = startLiveDroneData(map, NORMAL, onTick);
+      vi.advanceTimersByTime(600_000);
+
+      for (const [, , summaries] of onTick.mock.calls) {
+        for (const { id, status, firstSeenAt } of summaries) {
+          if (status !== "undetected") expect(firstSeenAt).not.toBeNull();
+          if (firstSeenAt === null) continue;
+
+          expect(firstSeenAt).toBe(firstSeen.get(id) ?? firstSeenAt);
+          firstSeen.set(id, firstSeenAt);
+        }
+      }
+      expect(firstSeen.size).toBeGreaterThan(0);
 
       stop();
     });

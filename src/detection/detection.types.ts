@@ -1,5 +1,6 @@
+import type { LngLat } from "../data/geo.types";
 import type { Zone } from "../data/zones.types";
-import type { Drone } from "../simulation/droneSimulator.types";
+import type { Behavior, Drone } from "../simulation/droneSimulator.types";
 
 export type DroneStatus = "undetected" | "tracked" | "alert";
 
@@ -10,6 +11,24 @@ export interface Classification {
 }
 
 export type ClassifiedDrone = Drone & Classification;
+
+/** The site time each drone was first detected, by drone ID, with only drones seen so far. */
+export type FirstSeenByDrone = ReadonlyMap<string, number>;
+
+/** A small copy of what the side panel shows, so full drones never go through React state. */
+export interface DroneSummary {
+  id: string;
+  behavior: Behavior;
+  status: DroneStatus;
+  /** Meters per second. */
+  speed: number;
+  /** Null until a sensor has detected the drone. */
+  firstSeenAt: number | null;
+  /** Meters. */
+  distanceToPilot: number;
+  position: LngLat;
+  pilot: LngLat;
+}
 
 export interface Alert {
   id: string;

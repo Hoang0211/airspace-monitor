@@ -22,7 +22,7 @@ describe("AlertList", () => {
   });
 
   it("shows the drone, zone and time of an alert", () => {
-    useAppStore.getState().recordTick(0, [makeAlert("UAV-007", 135)]);
+    useAppStore.getState().recordTick(0, [makeAlert("UAV-007", 135)], []);
     render(<AlertList />);
 
     const row = within(screen.getByRole("listitem"));
@@ -34,10 +34,10 @@ describe("AlertList", () => {
   });
 
   it("adds a new alert above the older ones and updates the count", () => {
-    useAppStore.getState().recordTick(0, [makeAlert("UAV-001", 10)]);
+    useAppStore.getState().recordTick(0, [makeAlert("UAV-001", 10)], []);
     render(<AlertList />);
 
-    act(() => useAppStore.getState().recordTick(0, [makeAlert("UAV-002", 20)]));
+    act(() => useAppStore.getState().recordTick(0, [makeAlert("UAV-002", 20)], []));
 
     const rows = screen.getAllByRole("listitem");
 
@@ -47,11 +47,11 @@ describe("AlertList", () => {
   });
 
   it("keeps the existing rows when a new alert arrives, so they don't flash again", () => {
-    useAppStore.getState().recordTick(0, [makeAlert("UAV-001", 10)]);
+    useAppStore.getState().recordTick(0, [makeAlert("UAV-001", 10)], []);
     render(<AlertList />);
     const originalRow = screen.getByRole("listitem");
 
-    act(() => useAppStore.getState().recordTick(0, [makeAlert("UAV-002", 20)]));
+    act(() => useAppStore.getState().recordTick(0, [makeAlert("UAV-002", 20)], []));
 
     expect(screen.getAllByRole("listitem")[1]).toBe(originalRow);
   });
