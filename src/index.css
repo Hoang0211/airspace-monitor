@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+@theme {
+  --animate-alert-flash: alert-flash 2s ease-out;
+
+  @keyframes alert-flash {
+    from {
+      background-color: var(--color-red-700);
+    }
+  }
+}
+
 :root {
   /* Native elements such as checkboxes and scrollbars follow the dark theme. */
   color-scheme: dark;

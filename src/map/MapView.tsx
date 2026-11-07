@@ -39,7 +39,8 @@ export function MapView() {
       addMapLayers(map);
       applyLayerVisibility(map, useAppStore.getState().layers);
 
-      const liveData = startLiveDroneData(map, useAppStore.getState().playback);
+      const { playback, recordTick } = useAppStore.getState();
+      const liveData = startLiveDroneData(map, playback, recordTick);
       stopLiveData = liveData.stop;
 
       unsubscribe = useAppStore.subscribe((state, previousState) => {

@@ -1,7 +1,9 @@
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
 import { SENSORS } from "../data/sensors";
 import { ZONES } from "../data/zones";
+import { detectZoneEntries } from "../detection/alerts.utils";
 import { classifyDrone } from "../detection/classifyDrone.utils";
+import type { Alert, ClassifiedDrone, ZonesByDrone } from "../detection/detection.types";
 import { DroneSimulator } from "../simulation/droneSimulator";
 import type { Drone } from "../simulation/droneSimulator.types";
 import type { Playback } from "../state/store.types";
@@ -12,28 +14,40 @@ const TICK_INTERVAL_MS = 1000;
 
 type LiveMap = Pick<MapLibreMap, "getSource">;
 
-function updateSources(map: LiveMap, drones: Drone[]): void {
-  const classified = drones.map((drone) => ({
-    ...drone,
-    ...classifyDrone(drone, SENSORS, ZONES),
-  }));
-
-  map.getSource<GeoJSONSource>("drones")?.setData(dronesToGeoJSON(classified));
+function updateSources(map: LiveMap, drones: ClassifiedDrone[]): void {
+  map.getSource<GeoJSONSource>("drones")?.setData(dronesToGeoJSON(drones));
   map.getSource<GeoJSONSource>("pilots")?.setData(pilotsToGeoJSON(drones));
-  map.getSource<GeoJSONSource>("lines")?.setData(linesToGeoJSON(classified));
+  map.getSource<GeoJSONSource>("lines")?.setData(linesToGeoJSON(drones));
 }
 
 /**
- * Runs the simulation and hands each update straight to the map, so a tick never re-renders React.
- * Each tick is one simulated second, so a higher speed simply ticks more often. Returns the
- * controls for changing the playback and stopping for good.
+ * Runs the simulation and hands each update straight to the map, so the drones never go through
+ * React. Only the site time and any new alerts go further, through `onTick`. Each tick is one
+ * simulated second, so a higher speed simply ticks more often. Returns the controls for changing
+ * the playback and stopping for good.
  */
 export function startLiveDroneData(
   map: LiveMap,
   initialPlayback: Playback,
+  onTick: (siteTime: number, newAlerts: Alert[]) => void,
 ): { setPlayback: (playback: Playback) => void; stop: () => void } {
   const simulator = new DroneSimulator();
+  const openedAt = simulator.simTime;
+  let zonesByDrone: ZonesByDrone = new Map();
   let interval: ReturnType<typeof setInterval> | undefined;
+
+  const update = (drones: Drone[]) => {
+    const classified = drones.map((drone) => ({
+      ...drone,
+      ...classifyDrone(drone, SENSORS, ZONES),
+    }));
+    updateSources(map, classified);
+
+    const siteTime = simulator.simTime - openedAt;
+    const entries = detectZoneEntries(zonesByDrone, classified, siteTime);
+    zonesByDrone = entries.zonesByDrone;
+    onTick(siteTime, entries.alerts);
+  };
 
   const stop = () => clearInterval(interval);
 
@@ -41,10 +55,10 @@ export function startLiveDroneData(
     stop();
     if (!playing) return;
 
-    interval = setInterval(() => updateSources(map, simulator.tick()), TICK_INTERVAL_MS / speed);
+    interval = setInterval(() => update(simulator.tick()), TICK_INTERVAL_MS / speed);
   };
 
-  updateSources(map, simulator.getDrones());
+  update(simulator.getDrones());
   setPlayback(initialPlayback);
 
   return { setPlayback, stop };

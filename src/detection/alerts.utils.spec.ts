@@ -26,11 +26,7 @@ function alertTimes(zones: (Zone | null)[]): number[] {
   let previous = NOWHERE;
 
   zones.forEach((zone, time) => {
-    const { alerts, zonesByDrone } = detectZoneEntries(
-      previous,
-      [{ droneId: "UAV-001", zone }],
-      time,
-    );
+    const { alerts, zonesByDrone } = detectZoneEntries(previous, [{ id: "UAV-001", zone }], time);
     times.push(...alerts.map((alert) => alert.time));
     previous = zonesByDrone;
   });
@@ -40,7 +36,7 @@ function alertTimes(zones: (Zone | null)[]): number[] {
 
 describe("detectZoneEntries", () => {
   it("raises an alert with the drone, zone and time when a drone enters a zone", () => {
-    const { alerts } = detectZoneEntries(NOWHERE, [{ droneId: "UAV-007", zone: AIRPORT }], 1234);
+    const { alerts } = detectZoneEntries(NOWHERE, [{ id: "UAV-007", zone: AIRPORT }], 1234);
 
     expect(alerts).toEqual([
       {
@@ -73,12 +69,12 @@ describe("detectZoneEntries", () => {
   });
 
   it("tracks each drone separately", () => {
-    const first = detectZoneEntries(NOWHERE, [{ droneId: "UAV-001", zone: AIRPORT }], 1);
+    const first = detectZoneEntries(NOWHERE, [{ id: "UAV-001", zone: AIRPORT }], 1);
     const second = detectZoneEntries(
       first.zonesByDrone,
       [
-        { droneId: "UAV-001", zone: AIRPORT },
-        { droneId: "UAV-002", zone: AIRPORT },
+        { id: "UAV-001", zone: AIRPORT },
+        { id: "UAV-002", zone: AIRPORT },
       ],
       2,
     );
@@ -90,16 +86,16 @@ describe("detectZoneEntries", () => {
     const first = detectZoneEntries(
       NOWHERE,
       [
-        { droneId: "UAV-001", zone: AIRPORT },
-        { droneId: "UAV-002", zone: AIRPORT },
+        { id: "UAV-001", zone: AIRPORT },
+        { id: "UAV-002", zone: AIRPORT },
       ],
       1,
     );
     const second = detectZoneEntries(
       first.zonesByDrone,
       [
-        { droneId: "UAV-001", zone: null },
-        { droneId: "UAV-003", zone: TIKKURILA },
+        { id: "UAV-001", zone: null },
+        { id: "UAV-003", zone: TIKKURILA },
       ],
       2,
     );
@@ -110,7 +106,7 @@ describe("detectZoneEntries", () => {
   it("leaves the previous tick's zones unchanged", () => {
     const previous = new Map([["UAV-001", "airport"]]);
 
-    detectZoneEntries(previous, [{ droneId: "UAV-001", zone: null }], 1);
+    detectZoneEntries(previous, [{ id: "UAV-001", zone: null }], 1);
 
     expect([...previous]).toEqual([["UAV-001", "airport"]]);
   });

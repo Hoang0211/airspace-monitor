@@ -15,7 +15,7 @@ export interface Alert {
   id: string;
   droneId: string;
   zoneName: string;
-  /** Simulated seconds when the drone entered the zone. */
+  /** Simulated seconds after the app opened, when the drone entered the zone. */
   time: number;
 }
 

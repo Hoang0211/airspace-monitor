@@ -1,5 +1,4 @@
-import type { Zone } from "../data/zones.types";
-import type { Alert, ZoneEntries, ZonesByDrone } from "./detection.types";
+import type { Alert, ClassifiedDrone, ZoneEntries, ZonesByDrone } from "./detection.types";
 
 const MAX_ALERTS = 100;
 
@@ -10,13 +9,13 @@ const MAX_ALERTS = 100;
  */
 export function detectZoneEntries(
   previous: ZonesByDrone,
-  current: { droneId: string; zone: Zone | null }[],
+  current: Pick<ClassifiedDrone, "id" | "zone">[],
   time: number,
 ): ZoneEntries {
   const alerts: Alert[] = [];
   const zonesByDrone = new Map<string, string>();
 
-  for (const { droneId, zone } of current) {
+  for (const { id: droneId, zone } of current) {
     if (!zone) continue;
     zonesByDrone.set(droneId, zone.id);
 
