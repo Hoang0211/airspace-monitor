@@ -81,3 +81,7 @@ npm run build
 ```
 
 The smoke test needs a Playwright browser. If it asks for one, run `npx playwright install chromium` once.
+
+## About this project
+
+Built with Claude Code, an AI coding assistant, to get hands-on with MapLibre, live map data and an operator-style interface.
