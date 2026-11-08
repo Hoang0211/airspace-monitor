@@ -39,7 +39,7 @@ It's a demonstration project. It doesn't use real sensor data and has no way to 
 
 Every tick, the map gets new drone data through MapLibre's `source.setData()`, straight from the simulation loop. If that data went through React state, every tick would re-render the map component for no benefit, since MapLibre draws the map itself.
 
-React only gets what the side panel shows: the site time, any new alerts and a small summary of each drone. So a tick is one small store update. In testing, a tick with 50 drones took about 0.2 ms on average, and memory stayed flat over 100 simulated minutes.
+React only gets what the side panel shows: the site time, any new alerts and a small summary of each drone. So a tick is one small store update. The app runs 12 drones at a time. In a stress test with 50, a tick took about 0.2 ms on average, and with 12, memory stayed flat over 100 simulated minutes.
 
 ### Status and alerts
 
